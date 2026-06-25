@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Click2Have is a simulated shopping experience for entertainment only. Click to own, zero to pay."
+    />
+    <title>Click2Have - Click to Own. Zero to Pay.</title>
+    <link rel="preconnect" href="https://images.unsplash.com" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <button class="icon-button ghost" data-action="go-home" aria-label="Home">
+          <span class="brand-mark">C2H</span>
+        </button>
+        <div class="search-wrap">
+          <span class="search-icon" aria-hidden="true">⌕</span>
+          <input id="searchInput" type="search" placeholder="Search simulated products" autocomplete="off" />
+        </div>
+        <button class="icon-button" data-action="open-cart" aria-label="Cart">
+          <span>🛒</span>
+          <span id="cartBadge" class="badge">0</span>
+        </button>
+      </header>
+
+      <main>
+        <section id="homeView" class="view active-view">
+          <div class="hero">
+            <div class="hero-copy">
+              <p class="eyebrow">Simulated Deals</p>
+              <h1>Click to Own. Zero to Pay.</h1>
+              <p>
+                Browse, cart, checkout, and track fictional orders for entertainment only. No real transactions occur.
+              </p>
+              <button class="primary-button" data-action="scroll-products">Start Shopping</button>
+            </div>
+            <div class="hero-panel" aria-label="Wallet preview">
+              <span>ClickCash</span>
+              <strong id="heroBalance">9,999,999</strong>
+              <small>¢2H available</small>
+            </div>
+          </div>
+
+          <div class="notice">
+            <strong>For fun only.</strong>
+            <span>All products on Click2Have are simulated. No real payment, shipping, or delivery happens.</span>
+          </div>
+
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Featured</p>
+              <h2>Simulated picks</h2>
+            </div>
+            <select id="categoryFilter" aria-label="Filter category">
+              <option value="all">All categories</option>
+              <option value="tech">Tech</option>
+              <option value="home">Home</option>
+              <option value="fashion">Fashion</option>
+              <option value="luxury">Luxury</option>
+              <option value="food">Food</option>
+            </select>
+          </div>
+          <div id="productGrid" class="product-grid"></div>
+        </section>
+
+        <section id="productView" class="view">
+          <button class="text-button" data-action="go-home">‹ Back to feed</button>
+          <article id="productDetail" class="detail"></article>
+        </section>
+
+        <section id="cartView" class="view">
+          <div class="section-head compact">
+            <div>
+              <p class="eyebrow">Cart</p>
+              <h2>Your simulated cart</h2>
+            </div>
+            <button class="text-button" data-action="go-home">Keep browsing</button>
+          </div>
+          <div id="cartContent"></div>
+        </section>
+
+        <section id="checkoutView" class="view">
+          <button class="text-button" data-action="open-cart">‹ Back to cart</button>
+          <div class="checkout-layout">
+            <div class="panel">
+              <p class="eyebrow">Checkout</p>
+              <h2>Place your zero-cost order</h2>
+              <label class="field">
+                <span>Virtual delivery address</span>
+                <input id="addressInput" value="742 Simulated Ave, SimCity, CA 90001" />
+              </label>
+              <label class="field">
+                <span>Delivery speed</span>
+                <select id="deliverySpeed">
+                  <option value="standard">Standard - free simulated shipping</option>
+                  <option value="express">Express - 120 ClickCash</option>
+                </select>
+              </label>
+              <label class="check-row">
+                <input id="simulationAck" type="checkbox" />
+                <span>I understand this is an entertainment-only simulated order with no real payment or delivery.</span>
+              </label>
+              <button id="placeOrderButton" class="primary-button full">Place Your Order (Zero Cost)</button>
+            </div>
+            <aside class="panel summary-panel">
+              <p class="eyebrow">Summary</p>
+              <div id="checkoutSummary"></div>
+            </aside>
+          </div>
+        </section>
+
+        <section id="successView" class="view">
+          <div class="success-card">
+            <div class="confetti" aria-hidden="true"></div>
+            <p class="eyebrow">Order placed</p>
+            <h2>Amount charged: $0.00</h2>
+            <p id="successCopy">Your simulated order is now moving through the virtual network.</p>
+            <div class="success-actions">
+              <button class="primary-button" data-action="open-tracking">View Tracking</button>
+              <button class="secondary-button" data-action="go-home">Continue Shopping</button>
+            </div>
+          </div>
+        </section>
+
+        <section id="trackingView" class="view">
+          <div class="section-head compact">
+            <div>
+              <p class="eyebrow">Tracking</p>
+              <h2>Virtual delivery timeline</h2>
+            </div>
+            <button class="text-button" data-action="go-home">Home</button>
+          </div>
+          <div id="trackingContent" class="tracking"></div>
+        </section>
+
+        <section id="walletView" class="view">
+          <div class="section-head compact">
+            <div>
+              <p class="eyebrow">Wallet</p>
+              <h2>ClickCash ledger</h2>
+            </div>
+            <button class="text-button" data-action="go-home">Home</button>
+          </div>
+          <div class="wallet-card">
+            <span>Available balance</span>
+            <strong id="walletBalance">9,999,999</strong>
+            <small>¢2H</small>
+          </div>
+          <div id="ledgerList" class="ledger"></div>
+        </section>
+      </main>
+
+      <nav class="bottom-nav" aria-label="Main navigation">
+        <button data-action="go-home" class="nav-item active">
+          <span>⌂</span>
+          Home
+        </button>
+        <button data-action="open-cart" class="nav-item">
+          <span>🛒</span>
+          Cart
+        </button>
+        <button data-action="open-wallet" class="nav-item">
+          <span>¢</span>
+          Wallet
+        </button>
+        <button data-action="open-tracking" class="nav-item">
+          <span>⇄</span>
+          Orders
+        </button>
+      </nav>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script src="app.js"></script>
+  </body>
+</html>
