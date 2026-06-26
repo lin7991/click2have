@@ -1,4 +1,4 @@
-const STORAGE_KEY = "click2have-state-v1";
+const STORAGE_KEY = "click2have-state-v2";
 
 const products = [
   {
@@ -113,6 +113,109 @@ const products = [
     variants: { Size: ["40", "41", "42", "43", "44"], Color: ["White", "Grey", "Black"] },
     timeline: "3-5 days",
   },
+  {
+    id: "p9",
+    category: "gaming",
+    title: "Nebula Handheld Game Deck",
+    price: 429,
+    rating: 4.9,
+    reviews: 1508,
+    image:
+      "https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?auto=format&fit=crop&w=1200&q=80",
+    desc: "A fictional portable game deck with vivid controls and a weekend-ready simulated library.",
+    bullets: ["7-inch display", "Dockable mode", "Cloud save style"],
+    variants: { Storage: ["256GB", "512GB", "1TB"], Color: ["Black", "Glacier"] },
+    timeline: "2-4 days",
+  },
+  {
+    id: "p10",
+    category: "travel",
+    title: "Weekend Escape Pass",
+    price: 760,
+    rating: 4.8,
+    reviews: 349,
+    image:
+      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+    desc: "A simulated city-break package with hotel, rooftop dinner, and imaginary late checkout.",
+    bullets: ["2-night stay", "Virtual itinerary", "No real booking"],
+    variants: { City: ["Barcelona", "Tokyo", "New York"], Mood: ["Food", "Design", "Relax"] },
+    timeline: "Instant itinerary",
+  },
+  {
+    id: "p11",
+    category: "luxury",
+    title: "Solar GT Dream Drive",
+    price: 185000,
+    rating: 5,
+    reviews: 41,
+    image:
+      "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80",
+    desc: "A fictional electric grand tourer for pretending your weekend calendar is extremely unavailable.",
+    bullets: ["Panoramic cabin", "Silent launch", "Virtual garage delivery"],
+    variants: { Finish: ["Obsidian", "Pearl", "Voltage Blue"] },
+    timeline: "Virtual garage today",
+  },
+  {
+    id: "p12",
+    category: "home",
+    title: "Arcade Espresso Station",
+    price: 1180,
+    rating: 4.7,
+    reviews: 198,
+    image:
+      "https://images.unsplash.com/photo-1517668808822-9ebb02f2a0e6?auto=format&fit=crop&w=1200&q=80",
+    desc: "A simulated countertop espresso station with a polished body and overpowered morning energy.",
+    bullets: ["Dual boiler style", "Milk wand", "Quiet grinder look"],
+    variants: { Finish: ["Steel", "Matte Black", "Cream"] },
+    timeline: "3-5 days",
+  },
+];
+
+const restaurants = [
+  {
+    id: "r1",
+    name: "Neon Noodle Lab",
+    cuisine: "Asian Fusion",
+    rating: 4.8,
+    eta: "18-28 min",
+    fee: 0,
+    image:
+      "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=1200&q=80",
+    items: ["Cyber Chili Ramen", "Moonlight Dumplings", "Iced Yuzu Tea"],
+  },
+  {
+    id: "r2",
+    name: "Orbit Pizza Works",
+    cuisine: "Pizza",
+    rating: 4.7,
+    eta: "25-35 min",
+    fee: 3,
+    image:
+      "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1200&q=80",
+    items: ["Truffle Meteor Pizza", "Garlic Nova Knots", "Cola Float"],
+  },
+  {
+    id: "r3",
+    name: "Velvet Taco Signal",
+    cuisine: "Street Food",
+    rating: 4.6,
+    eta: "15-25 min",
+    fee: 2,
+    image:
+      "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=1200&q=80",
+    items: ["Solar Shrimp Taco", "Street Corn Cup", "Lime Freeze"],
+  },
+  {
+    id: "r4",
+    name: "Cloud Brunch Club",
+    cuisine: "Brunch",
+    rating: 4.9,
+    eta: "20-30 min",
+    fee: 4,
+    image:
+      "https://images.unsplash.com/photo-1493770348161-369560ae357d?auto=format&fit=crop&w=1200&q=80",
+    items: ["Stacked Pancakes", "Avocado Glow Toast", "Cold Brew"],
+  },
 ];
 
 const stateDefaults = {
@@ -127,6 +230,8 @@ const stateDefaults = {
   ],
   orders: [],
   trackingOrderId: null,
+  lastDailyReward: null,
+  feedback: [],
 };
 
 let state = loadState();
@@ -139,7 +244,9 @@ const els = {
   successView: document.getElementById("successView"),
   trackingView: document.getElementById("trackingView"),
   walletView: document.getElementById("walletView"),
+  foodView: document.getElementById("foodView"),
   productGrid: document.getElementById("productGrid"),
+  restaurantGrid: document.getElementById("restaurantGrid"),
   productDetail: document.getElementById("productDetail"),
   cartContent: document.getElementById("cartContent"),
   checkoutSummary: document.getElementById("checkoutSummary"),
@@ -155,6 +262,9 @@ const els = {
   placeOrderButton: document.getElementById("placeOrderButton"),
   deliverySpeed: document.getElementById("deliverySpeed"),
   addressInput: document.getElementById("addressInput"),
+  dailyRewardText: document.getElementById("dailyRewardText"),
+  feedbackModal: document.getElementById("feedbackModal"),
+  feedbackInput: document.getElementById("feedbackInput"),
 };
 
 document.addEventListener("click", handleDocumentClick);
@@ -205,6 +315,8 @@ function renderAll() {
   renderCheckoutSummary();
   renderTracking();
   renderLedger();
+  renderRestaurants();
+  renderDailyReward();
   syncNavState();
 }
 
@@ -403,6 +515,41 @@ function renderLedger() {
     .join("");
 }
 
+function renderRestaurants() {
+  els.restaurantGrid.innerHTML = restaurants
+    .map(
+      (restaurant) => `
+        <article class="restaurant-card">
+          <div class="image-frame">
+            <img src="${restaurant.image}" alt="${escapeHtml(restaurant.name)}" loading="lazy" />
+            <span class="watermark">Simulated Restaurant</span>
+          </div>
+          <div class="restaurant-body">
+            <div class="restaurant-head">
+              <div>
+                <p class="eyebrow">${escapeHtml(restaurant.cuisine)}</p>
+                <h3>${escapeHtml(restaurant.name)}</h3>
+              </div>
+              <strong>★ ${restaurant.rating}</strong>
+            </div>
+            <p>${restaurant.eta} · $${restaurant.fee} simulated delivery fee</p>
+            <div class="menu-preview">
+              ${restaurant.items.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}
+            </div>
+            <button class="primary-button full" data-action="order-food" data-id="${restaurant.id}">Order Simulated Meal</button>
+          </div>
+        </article>
+      `,
+    )
+    .join("");
+}
+
+function renderDailyReward() {
+  const today = getTodayKey();
+  const claimed = state.lastDailyReward === today;
+  els.dailyRewardText.textContent = claimed ? "Reward claimed today" : "Claim 25,000 ¢2H";
+}
+
 function handleDocumentClick(event) {
   const actionEl = event.target.closest("[data-action]");
   if (!actionEl) return;
@@ -420,8 +567,36 @@ function handleDocumentClick(event) {
     showView("wallet");
     return;
   }
+  if (action === "open-food") {
+    showView("food");
+    return;
+  }
   if (action === "open-tracking") {
     showView("tracking");
+    return;
+  }
+  if (action === "claim-daily") {
+    claimDailyReward();
+    return;
+  }
+  if (action === "open-feedback") {
+    openFeedback();
+    return;
+  }
+  if (action === "close-feedback") {
+    closeFeedback();
+    return;
+  }
+  if (action === "save-feedback") {
+    saveFeedback();
+    return;
+  }
+  if (action === "share-latest-order") {
+    shareLatestOrder();
+    return;
+  }
+  if (action === "order-food") {
+    orderFood(actionEl.dataset.id);
     return;
   }
   if (action === "scroll-products") {
@@ -468,6 +643,90 @@ function handleDocumentClick(event) {
     showView("checkout");
     return;
   }
+}
+
+function claimDailyReward() {
+  const today = getTodayKey();
+  if (state.lastDailyReward === today) {
+    showToast("Daily reward already claimed");
+    return;
+  }
+  const reward = 25000;
+  state.walletBalance += reward;
+  state.lastDailyReward = today;
+  addLedgerEntry("Daily reward", reward, "credit", "V0.2 check-in bonus");
+  saveAndRender();
+  showToast("+25,000 ClickCash claimed");
+}
+
+function orderFood(restaurantId) {
+  const restaurant = restaurants.find((entry) => entry.id === restaurantId);
+  if (!restaurant) return;
+  const mealCost = 38 + restaurant.fee;
+  const order = {
+    id: createId(),
+    orderNumber: `C2H-EATS-${Math.floor(100000 + Math.random() * 900000)}`,
+    address: els.addressInput.value || "742 Simulated Ave, SimCity, CA 90001",
+    delivery: "food",
+    deliveryMinutes: restaurant.eta,
+    statusIndex: 0,
+    timeline: buildFoodTimeline(0, restaurant.name),
+    createdAt: Date.now(),
+    summary: { subtotal: 38, shipping: restaurant.fee, tax: 3, total: mealCost + 3 },
+    clickCashSpent: mealCost + 3,
+  };
+  state.orders.push(order);
+  state.trackingOrderId = order.id;
+  state.walletBalance -= order.clickCashSpent;
+  addLedgerEntry(restaurant.name, order.clickCashSpent, "debit", "Simulated food delivery - amount charged $0.00");
+  saveState();
+  renderAll();
+  showView("success");
+  document.getElementById("successCopy").textContent =
+    `${restaurant.name} accepted your simulated order. A virtual courier is being assigned.`;
+  showToast("Simulated meal ordered");
+  pulseConfetti();
+}
+
+function openFeedback() {
+  els.feedbackInput.value = "";
+  els.feedbackModal.classList.add("open");
+  els.feedbackModal.setAttribute("aria-hidden", "false");
+  els.feedbackInput.focus();
+}
+
+function closeFeedback() {
+  els.feedbackModal.classList.remove("open");
+  els.feedbackModal.setAttribute("aria-hidden", "true");
+}
+
+function saveFeedback() {
+  const value = els.feedbackInput.value.trim();
+  if (!value) return showToast("Write a short note first");
+  state.feedback.push({ body: value, createdAt: Date.now() });
+  saveState();
+  closeFeedback();
+  showToast("Feedback saved locally");
+}
+
+async function shareLatestOrder() {
+  const order = getLatestOrder();
+  if (!order) return showToast("No order to share yet");
+  const text = `I just placed a $0.00 simulated order on Click2Have: ${order.orderNumber}. Click to own, zero to pay. https://click2have.com`;
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: "Click2Have order", text, url: "https://click2have.com" });
+      return;
+    } catch {
+      return;
+    }
+  }
+  if (navigator.clipboard) {
+    await navigator.clipboard.writeText(text);
+    showToast("Share text copied");
+    return;
+  }
+  showToast(text);
 }
 
 function addToCart(productId) {
@@ -528,6 +787,8 @@ function placeOrder() {
   saveState();
   renderAll();
   showView("success");
+  document.getElementById("successCopy").textContent =
+    "Your simulated order is now moving through the virtual network.";
   showToast("Order placed");
   pulseConfetti();
 }
@@ -550,12 +811,25 @@ function buildTimeline(doneCount) {
   return steps.map(([title, copy], index) => ({ title, copy, done: index <= doneCount }));
 }
 
+function buildFoodTimeline(doneCount, restaurantName) {
+  const steps = [
+    ["Order placed", `${restaurantName} received your simulated order.`],
+    ["Restaurant is preparing your order", "The kitchen is firing up a fictional meal."],
+    ["Courier assigned - Maya (simulated)", "A virtual courier is heading to the restaurant."],
+    ["Courier is on the way", "Your simulated route is moving across SimCity."],
+    ["Delivered", "Left at your virtual doorstep."],
+  ];
+  return steps.map(([title, copy], index) => ({ title, copy, done: index <= doneCount }));
+}
+
 function progressTracking() {
   const order = getLatestOrder();
   if (!order) return;
   if (order.statusIndex >= 4) return;
   order.statusIndex += 1;
-  order.timeline = buildTimeline(order.statusIndex);
+  const isFood = order.delivery === "food";
+  const restaurantName = order.timeline?.[0]?.copy?.replace(" received your simulated order.", "") || "The restaurant";
+  order.timeline = isFood ? buildFoodTimeline(order.statusIndex, restaurantName) : buildTimeline(order.statusIndex);
   order.updatedAt = Date.now();
   state.trackingOrderId = order.id;
   saveState();
@@ -622,6 +896,7 @@ function showView(view) {
     success: els.successView,
     tracking: els.trackingView,
     wallet: els.walletView,
+    food: els.foodView,
   };
   Object.values(map).forEach((node) => node.classList.remove("active-view"));
   map[view].classList.add("active-view");
@@ -630,6 +905,7 @@ function showView(view) {
   if (view === "checkout") renderCheckoutSummary();
   if (view === "wallet") renderLedger();
   if (view === "tracking") renderTracking();
+  if (view === "food") renderRestaurants();
 }
 
 function syncNavState(view = getCurrentView()) {
@@ -639,7 +915,7 @@ function syncNavState(view = getCurrentView()) {
       ? 1
       : view === "wallet"
         ? 2
-        : view === "tracking"
+        : view === "food"
           ? 3
           : 0;
   document.querySelectorAll(".nav-item")[active].classList.add("active");
@@ -651,6 +927,7 @@ function getCurrentView() {
   if (els.successView.classList.contains("active-view")) return "success";
   if (els.trackingView.classList.contains("active-view")) return "tracking";
   if (els.walletView.classList.contains("active-view")) return "wallet";
+  if (els.foodView.classList.contains("active-view")) return "food";
   if (els.productView.classList.contains("active-view")) return "product";
   return "home";
 }
@@ -678,4 +955,8 @@ function escapeHtml(text) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#39;");
+}
+
+function getTodayKey() {
+  return new Date().toISOString().slice(0, 10);
 }

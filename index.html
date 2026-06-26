@@ -31,12 +31,16 @@
         <section id="homeView" class="view active-view">
           <div class="hero">
             <div class="hero-copy">
-              <p class="eyebrow">Simulated Deals</p>
+              <p class="eyebrow">V0.2 Simulated Deals</p>
               <h1>Click to Own. Zero to Pay.</h1>
               <p>
-                Browse, cart, checkout, and track fictional orders for entertainment only. No real transactions occur.
+                Browse products, try virtual food delivery, claim ClickCash, checkout, and track fictional orders for
+                entertainment only.
               </p>
-              <button class="primary-button" data-action="scroll-products">Start Shopping</button>
+              <div class="hero-actions">
+                <button class="primary-button" data-action="scroll-products">Start Shopping</button>
+                <button class="secondary-button hero-secondary" data-action="open-food">Try Food Delivery</button>
+              </div>
             </div>
             <div class="hero-panel" aria-label="Wallet preview">
               <span>ClickCash</span>
@@ -48,6 +52,21 @@
           <div class="notice">
             <strong>For fun only.</strong>
             <span>All products on Click2Have are simulated. No real payment, shipping, or delivery happens.</span>
+          </div>
+
+          <div class="quick-actions">
+            <button class="action-card" data-action="claim-daily">
+              <span>Daily reward</span>
+              <strong id="dailyRewardText">Claim 25,000 ¢2H</strong>
+            </button>
+            <button class="action-card" data-action="open-food">
+              <span>New in V0.2</span>
+              <strong>Virtual food delivery</strong>
+            </button>
+            <button class="action-card" data-action="open-feedback">
+              <span>Help shape Click2Have</span>
+              <strong>Send feedback</strong>
+            </button>
           </div>
 
           <div class="section-head">
@@ -62,6 +81,8 @@
               <option value="fashion">Fashion</option>
               <option value="luxury">Luxury</option>
               <option value="food">Food</option>
+              <option value="travel">Travel</option>
+              <option value="gaming">Gaming</option>
             </select>
           </div>
           <div id="productGrid" class="product-grid"></div>
@@ -121,6 +142,7 @@
             <p id="successCopy">Your simulated order is now moving through the virtual network.</p>
             <div class="success-actions">
               <button class="primary-button" data-action="open-tracking">View Tracking</button>
+              <button class="secondary-button" data-action="share-latest-order">Share Order</button>
               <button class="secondary-button" data-action="go-home">Continue Shopping</button>
             </div>
           </div>
@@ -152,6 +174,21 @@
           </div>
           <div id="ledgerList" class="ledger"></div>
         </section>
+
+        <section id="foodView" class="view">
+          <div class="section-head compact">
+            <div>
+              <p class="eyebrow">Food delivery</p>
+              <h2>Virtual restaurants nearby</h2>
+            </div>
+            <button class="text-button" data-action="go-home">Home</button>
+          </div>
+          <div class="notice">
+            <strong>Simulated delivery.</strong>
+            <span>Restaurants, riders, tips, and routes are fictional and for entertainment only.</span>
+          </div>
+          <div id="restaurantGrid" class="restaurant-grid"></div>
+        </section>
       </main>
 
       <nav class="bottom-nav" aria-label="Main navigation">
@@ -167,11 +204,22 @@
           <span>¢</span>
           Wallet
         </button>
-        <button data-action="open-tracking" class="nav-item">
-          <span>⇄</span>
-          Orders
+        <button data-action="open-food" class="nav-item">
+          <span>▣</span>
+          Food
         </button>
       </nav>
+    </div>
+
+    <div id="feedbackModal" class="modal" aria-hidden="true">
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="feedbackTitle">
+        <button class="modal-close" data-action="close-feedback" aria-label="Close">×</button>
+        <p class="eyebrow">Feedback</p>
+        <h2 id="feedbackTitle">What should Click2Have do next?</h2>
+        <textarea id="feedbackInput" rows="5" placeholder="Tell us what felt fun, confusing, or worth adding next."></textarea>
+        <button class="primary-button full" data-action="save-feedback">Save Feedback</button>
+        <p class="modal-note">Saved locally in this demo. No account or server is connected yet.</p>
+      </div>
     </div>
 
     <div id="toast" class="toast" role="status" aria-live="polite"></div>

@@ -4,9 +4,10 @@ Click2Have is a simulated shopping H5 experience for entertainment only.
 
 ## Current Version
 
-This first version is a zero-dependency static H5 demo. It includes:
+This V0.2 version is a zero-dependency static H5 demo. It includes:
 
 - Home product feed
+- Expanded product catalog
 - Product detail
 - Variant selection
 - Cart
@@ -14,6 +15,10 @@ This first version is a zero-dependency static H5 demo. It includes:
 - Order success animation
 - Simulated tracking timeline
 - ClickCash wallet ledger
+- Daily ClickCash reward
+- Virtual food delivery demo
+- Shareable order text
+- Local feedback capture
 - Local browser persistence
 - Mobile-first responsive layout
 
@@ -46,4 +51,3 @@ http://localhost:4173
 ## Demo Boundary
 
 This version is designed for public concept demos. Data is stored in the visitor's browser using `localStorage`, so each visitor has their own local cart, wallet, and order history.
-

@@ -254,6 +254,18 @@ main {
   color: var(--text);
 }
 
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.hero-secondary {
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
 .text-button {
   border: 0;
   background: transparent;
@@ -272,6 +284,37 @@ main {
   background: #fff8e5;
   color: #5f4500;
   line-height: 1.4;
+}
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 16px 0 8px;
+}
+
+.action-card {
+  min-width: 0;
+  min-height: 88px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  text-align: left;
+  box-shadow: 0 8px 18px rgba(33, 45, 72, 0.05);
+}
+
+.action-card span {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.action-card strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 17px;
+  line-height: 1.25;
 }
 
 .section-head {
@@ -313,6 +356,12 @@ select,
   gap: 14px;
 }
 
+.restaurant-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
 .product-card {
   min-width: 0;
   border: 1px solid var(--line);
@@ -320,6 +369,54 @@ select,
   background: var(--surface);
   overflow: hidden;
   box-shadow: 0 8px 18px rgba(33, 45, 72, 0.06);
+}
+
+.restaurant-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  overflow: hidden;
+  box-shadow: 0 8px 18px rgba(33, 45, 72, 0.06);
+}
+
+.restaurant-card .image-frame {
+  aspect-ratio: 1 / 0.48;
+}
+
+.restaurant-body {
+  padding: 14px;
+}
+
+.restaurant-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.restaurant-head h3 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.restaurant-body p {
+  margin: 10px 0;
+  color: var(--muted);
+}
+
+.menu-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 12px 0;
+}
+
+.menu-preview span {
+  padding: 7px 9px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: #30394a;
+  font-size: 12px;
+  font-weight: 800;
 }
 
 .product-card button.image-button {
@@ -780,6 +877,72 @@ select,
   transform: translate(-50%, 0);
 }
 
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: none;
+  place-items: center;
+  padding: 18px;
+  background: rgba(16, 21, 34, 0.42);
+  backdrop-filter: blur(10px);
+}
+
+.modal.open {
+  display: grid;
+}
+
+.modal-card {
+  position: relative;
+  width: min(520px, 100%);
+  padding: 22px;
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.modal-card h2 {
+  margin: 0 0 14px;
+  font-size: 28px;
+  letter-spacing: 0;
+}
+
+.modal-card textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 132px;
+  margin-bottom: 12px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  outline: none;
+  font: inherit;
+}
+
+.modal-card textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(8, 182, 161, 0.16);
+}
+
+.modal-close {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-size: 24px;
+  line-height: 1;
+}
+
+.modal-note {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
 .empty {
   padding: 24px;
   border: 1px dashed var(--line);
@@ -803,6 +966,11 @@ select,
 
   .product-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .quick-actions,
+  .restaurant-grid {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -861,6 +1029,15 @@ select,
 
   .success-actions .primary-button,
   .success-actions .secondary-button {
+    width: 100%;
+  }
+
+  .hero-actions {
+    display: grid;
+  }
+
+  .hero-actions .primary-button,
+  .hero-actions .secondary-button {
     width: 100%;
   }
 }
