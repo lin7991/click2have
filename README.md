@@ -4,7 +4,7 @@ Click2Have is a simulated shopping H5 experience for entertainment only.
 
 ## Current Version
 
-This V0.2 version is a zero-dependency static H5 demo. It includes:
+This V0.3 version is a zero-dependency static H5 demo. It includes:
 
 - Home product feed
 - Expanded product catalog
@@ -19,6 +19,9 @@ This V0.2 version is a zero-dependency static H5 demo. It includes:
 - Virtual food delivery demo
 - Shareable order text
 - Local feedback capture
+- First-visit onboarding
+- Local demo insights and event log
+- Order history selector
 - Local browser persistence
 - Mobile-first responsive layout
 

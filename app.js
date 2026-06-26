@@ -1,4 +1,4 @@
-const STORAGE_KEY = "click2have-state-v2";
+const STORAGE_KEY = "click2have-state-v3";
 
 const products = [
   {
@@ -232,6 +232,8 @@ const stateDefaults = {
   trackingOrderId: null,
   lastDailyReward: null,
   feedback: [],
+  events: [],
+  hasSeenOnboarding: false,
 };
 
 let state = loadState();
@@ -245,8 +247,12 @@ const els = {
   trackingView: document.getElementById("trackingView"),
   walletView: document.getElementById("walletView"),
   foodView: document.getElementById("foodView"),
+  insightsView: document.getElementById("insightsView"),
   productGrid: document.getElementById("productGrid"),
   restaurantGrid: document.getElementById("restaurantGrid"),
+  orderHistory: document.getElementById("orderHistory"),
+  insightsGrid: document.getElementById("insightsGrid"),
+  eventLog: document.getElementById("eventLog"),
   productDetail: document.getElementById("productDetail"),
   cartContent: document.getElementById("cartContent"),
   checkoutSummary: document.getElementById("checkoutSummary"),
@@ -265,6 +271,7 @@ const els = {
   dailyRewardText: document.getElementById("dailyRewardText"),
   feedbackModal: document.getElementById("feedbackModal"),
   feedbackInput: document.getElementById("feedbackInput"),
+  onboardingModal: document.getElementById("onboardingModal"),
 };
 
 document.addEventListener("click", handleDocumentClick);
@@ -281,6 +288,8 @@ document.getElementById("deliverySpeed").addEventListener("change", renderChecko
 document.getElementById("addressInput").addEventListener("input", saveState);
 
 renderAll();
+showOnboardingIfNeeded();
+trackEvent("app_loaded", "Demo opened");
 setInterval(progressTracking, 15000);
 
 function loadState() {
@@ -314,9 +323,11 @@ function renderAll() {
   renderCart();
   renderCheckoutSummary();
   renderTracking();
+  renderOrderHistory();
   renderLedger();
   renderRestaurants();
   renderDailyReward();
+  renderInsights();
   syncNavState();
 }
 
@@ -495,6 +506,29 @@ function renderTracking() {
   els.trackingContent.innerHTML = steps.join("");
 }
 
+function renderOrderHistory() {
+  if (!state.orders.length) {
+    els.orderHistory.innerHTML = "";
+    return;
+  }
+  els.orderHistory.innerHTML = `
+    <div class="order-strip">
+      ${state.orders
+        .slice()
+        .reverse()
+        .map(
+          (order) => `
+            <button class="${order.id === state.trackingOrderId ? "selected" : ""}" data-action="select-order" data-id="${order.id}">
+              <strong>${escapeHtml(order.orderNumber)}</strong>
+              <span>${order.delivery === "food" ? "Food" : "Shopping"} · ${formatDate(order.createdAt)}</span>
+            </button>
+          `,
+        )
+        .join("")}
+    </div>
+  `;
+}
+
 function renderLedger() {
   els.ledgerList.innerHTML = state.ledger
     .slice()
@@ -513,6 +547,45 @@ function renderLedger() {
       `,
     )
     .join("");
+}
+
+function renderInsights() {
+  const counts = state.events.reduce((acc, event) => {
+    acc[event.name] = (acc[event.name] || 0) + 1;
+    return acc;
+  }, {});
+  const cards = [
+    ["Product views", counts.product_viewed || 0],
+    ["Click to Have", counts.cart_item_added || 0],
+    ["Orders placed", counts.order_placed || 0],
+    ["Food orders", counts.food_order_placed || 0],
+    ["Shares", counts.order_shared || 0],
+    ["Feedback notes", state.feedback.length],
+  ];
+  els.insightsGrid.innerHTML = cards
+    .map(
+      ([label, value]) => `
+        <article class="insight-card">
+          <span>${label}</span>
+          <strong>${value}</strong>
+        </article>
+      `,
+    )
+    .join("");
+  const recentEvents = state.events.slice(-12).reverse();
+  els.eventLog.innerHTML = recentEvents.length
+    ? recentEvents
+        .map(
+          (event) => `
+            <article class="event-row">
+              <strong>${escapeHtml(event.name)}</strong>
+              <span>${escapeHtml(event.detail || "")}</span>
+              <small>${formatDate(event.createdAt)}</small>
+            </article>
+          `,
+        )
+        .join("")
+    : `<div class="empty">No local events yet.</div>`;
 }
 
 function renderRestaurants() {
@@ -569,10 +642,17 @@ function handleDocumentClick(event) {
   }
   if (action === "open-food") {
     showView("food");
+    trackEvent("food_opened", "Food delivery viewed");
+    return;
+  }
+  if (action === "open-insights") {
+    showView("insights");
+    trackEvent("insights_opened", "Local insights viewed");
     return;
   }
   if (action === "open-tracking") {
     showView("tracking");
+    trackEvent("tracking_opened", "Orders viewed");
     return;
   }
   if (action === "claim-daily") {
@@ -587,6 +667,14 @@ function handleDocumentClick(event) {
     closeFeedback();
     return;
   }
+  if (action === "open-mail-feedback") {
+    openMailFeedback();
+    return;
+  }
+  if (action === "close-onboarding") {
+    closeOnboarding();
+    return;
+  }
   if (action === "save-feedback") {
     saveFeedback();
     return;
@@ -599,6 +687,18 @@ function handleDocumentClick(event) {
     orderFood(actionEl.dataset.id);
     return;
   }
+  if (action === "select-order") {
+    state.trackingOrderId = actionEl.dataset.id;
+    saveAndRender();
+    trackEvent("order_selected", actionEl.dataset.id);
+    return;
+  }
+  if (action === "reset-insights") {
+    state.events = [];
+    saveAndRender();
+    showToast("Local insights reset");
+    return;
+  }
   if (action === "scroll-products") {
     document.getElementById("productGrid").scrollIntoView({ behavior: "smooth", block: "start" });
     return;
@@ -606,6 +706,7 @@ function handleDocumentClick(event) {
   if (action === "open-product") {
     state.selectedProductId = actionEl.dataset.id;
     showView("product");
+    trackEvent("product_viewed", products.find((product) => product.id === actionEl.dataset.id)?.title || actionEl.dataset.id);
     saveAndRender();
     return;
   }
@@ -655,6 +756,7 @@ function claimDailyReward() {
   state.walletBalance += reward;
   state.lastDailyReward = today;
   addLedgerEntry("Daily reward", reward, "credit", "V0.2 check-in bonus");
+  trackEvent("daily_reward_claimed", "+25,000 ClickCash");
   saveAndRender();
   showToast("+25,000 ClickCash claimed");
 }
@@ -679,6 +781,7 @@ function orderFood(restaurantId) {
   state.trackingOrderId = order.id;
   state.walletBalance -= order.clickCashSpent;
   addLedgerEntry(restaurant.name, order.clickCashSpent, "debit", "Simulated food delivery - amount charged $0.00");
+  trackEvent("food_order_placed", restaurant.name);
   saveState();
   renderAll();
   showView("success");
@@ -704,9 +807,35 @@ function saveFeedback() {
   const value = els.feedbackInput.value.trim();
   if (!value) return showToast("Write a short note first");
   state.feedback.push({ body: value, createdAt: Date.now() });
+  trackEvent("feedback_saved", value.slice(0, 60));
   saveState();
   closeFeedback();
   showToast("Feedback saved locally");
+}
+
+function openMailFeedback() {
+  const body = encodeURIComponent(
+    els.feedbackInput.value.trim() || "I tried Click2Have and here is my feedback:",
+  );
+  const subject = encodeURIComponent("Click2Have feedback");
+  trackEvent("feedback_email_opened", "mailto opened");
+  window.location.href = `mailto:hello@click2have.com?subject=${subject}&body=${body}`;
+}
+
+function showOnboardingIfNeeded() {
+  if (state.hasSeenOnboarding) return;
+  window.setTimeout(() => {
+    els.onboardingModal.classList.add("open");
+    els.onboardingModal.setAttribute("aria-hidden", "false");
+  }, 500);
+}
+
+function closeOnboarding() {
+  state.hasSeenOnboarding = true;
+  saveState();
+  els.onboardingModal.classList.remove("open");
+  els.onboardingModal.setAttribute("aria-hidden", "true");
+  trackEvent("onboarding_completed", "Start exploring");
 }
 
 async function shareLatestOrder() {
@@ -716,6 +845,7 @@ async function shareLatestOrder() {
   if (navigator.share) {
     try {
       await navigator.share({ title: "Click2Have order", text, url: "https://click2have.com" });
+      trackEvent("order_shared", order.orderNumber);
       return;
     } catch {
       return;
@@ -723,10 +853,24 @@ async function shareLatestOrder() {
   }
   if (navigator.clipboard) {
     await navigator.clipboard.writeText(text);
+    trackEvent("order_shared", order.orderNumber);
     showToast("Share text copied");
     return;
   }
   showToast(text);
+}
+
+function trackEvent(name, detail = "") {
+  state.events.push({
+    name,
+    detail,
+    createdAt: Date.now(),
+  });
+  if (state.events.length > 120) {
+    state.events = state.events.slice(-120);
+  }
+  saveState();
+  renderInsights();
 }
 
 function addToCart(productId) {
@@ -744,6 +888,7 @@ function addToCart(productId) {
     });
   }
   saveAndRender();
+  trackEvent("cart_item_added", product.title);
   showToast("Added to cart");
 }
 
@@ -784,6 +929,7 @@ function placeOrder() {
   state.walletBalance -= clickCashSpent;
   addLedgerEntry(`Order ${order.orderNumber}`, clickCashSpent, "debit", "Simulated purchase - amount charged $0.00");
   state.cart = [];
+  trackEvent("order_placed", order.orderNumber);
   saveState();
   renderAll();
   showView("success");
@@ -887,6 +1033,15 @@ function formatMoney(value) {
   return Number(value).toLocaleString("en-US");
 }
 
+function formatDate(timestamp) {
+  return new Intl.DateTimeFormat("en", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(timestamp));
+}
+
 function showView(view) {
   const map = {
     home: els.homeView,
@@ -897,6 +1052,7 @@ function showView(view) {
     tracking: els.trackingView,
     wallet: els.walletView,
     food: els.foodView,
+    insights: els.insightsView,
   };
   Object.values(map).forEach((node) => node.classList.remove("active-view"));
   map[view].classList.add("active-view");
@@ -906,6 +1062,7 @@ function showView(view) {
   if (view === "wallet") renderLedger();
   if (view === "tracking") renderTracking();
   if (view === "food") renderRestaurants();
+  if (view === "insights") renderInsights();
 }
 
 function syncNavState(view = getCurrentView()) {
@@ -928,6 +1085,7 @@ function getCurrentView() {
   if (els.trackingView.classList.contains("active-view")) return "tracking";
   if (els.walletView.classList.contains("active-view")) return "wallet";
   if (els.foodView.classList.contains("active-view")) return "food";
+  if (els.insightsView.classList.contains("active-view")) return "insights";
   if (els.productView.classList.contains("active-view")) return "product";
   return "home";
 }

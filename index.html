@@ -67,6 +67,10 @@
               <span>Help shape Click2Have</span>
               <strong>Send feedback</strong>
             </button>
+            <button class="action-card" data-action="open-insights">
+              <span>V0.3 demo data</span>
+              <strong>View local insights</strong>
+            </button>
           </div>
 
           <div class="section-head">
@@ -152,10 +156,11 @@
           <div class="section-head compact">
             <div>
               <p class="eyebrow">Tracking</p>
-              <h2>Virtual delivery timeline</h2>
+              <h2>Orders and tracking</h2>
             </div>
             <button class="text-button" data-action="go-home">Home</button>
           </div>
+          <div id="orderHistory" class="order-history"></div>
           <div id="trackingContent" class="tracking"></div>
         </section>
 
@@ -189,6 +194,31 @@
           </div>
           <div id="restaurantGrid" class="restaurant-grid"></div>
         </section>
+
+        <section id="insightsView" class="view">
+          <div class="section-head compact">
+            <div>
+              <p class="eyebrow">V0.3</p>
+              <h2>Local demo insights</h2>
+            </div>
+            <button class="text-button" data-action="go-home">Home</button>
+          </div>
+          <div class="notice">
+            <strong>Local only.</strong>
+            <span>These metrics are stored in this browser to help test the demo before a real analytics service.</span>
+          </div>
+          <div id="insightsGrid" class="insights-grid"></div>
+          <div class="panel">
+            <div class="section-head compact no-margin">
+              <div>
+                <p class="eyebrow">Recent events</p>
+                <h2>Interaction log</h2>
+              </div>
+              <button class="text-button" data-action="reset-insights">Reset</button>
+            </div>
+            <div id="eventLog" class="event-log"></div>
+          </div>
+        </section>
       </main>
 
       <nav class="bottom-nav" aria-label="Main navigation">
@@ -218,7 +248,22 @@
         <h2 id="feedbackTitle">What should Click2Have do next?</h2>
         <textarea id="feedbackInput" rows="5" placeholder="Tell us what felt fun, confusing, or worth adding next."></textarea>
         <button class="primary-button full" data-action="save-feedback">Save Feedback</button>
+        <button class="secondary-button full" data-action="open-mail-feedback">Send by Email</button>
         <p class="modal-note">Saved locally in this demo. No account or server is connected yet.</p>
+      </div>
+    </div>
+
+    <div id="onboardingModal" class="modal" aria-hidden="true">
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle">
+        <button class="modal-close" data-action="close-onboarding" aria-label="Close">×</button>
+        <p class="eyebrow">Welcome to Click2Have</p>
+        <h2 id="onboardingTitle">A shopping rush without the bill.</h2>
+        <div class="onboarding-list">
+          <div><strong>1</strong><span>Browse fictional products and restaurants.</span></div>
+          <div><strong>2</strong><span>Checkout with $0.00 charged.</span></div>
+          <div><strong>3</strong><span>Track a simulated delivery and share the moment.</span></div>
+        </div>
+        <button class="primary-button full" data-action="close-onboarding">Start Exploring</button>
       </div>
     </div>
 
